@@ -21,7 +21,8 @@ export const useWorkspaceStore = create((set, get) => ({
 
   joinRoom: async (room, user) => {
     // connect socket
-    const socket = io('http://localhost:4000');
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
+    const socket = io(socketUrl);
     
     socket.emit('join_room', { roomId: room.id, user });
 
