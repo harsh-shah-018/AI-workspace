@@ -1,0 +1,65 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  roomsOwned   Room[]       @relation("RoomOwner")
+  roomMembers  RoomMember[]
+}
+
+model Room {
+  id           String       @id @default(uuid())
+  name         String
+  code         String       @unique
+  ownerId      String
+  owner        User         @relation("RoomOwner", fields: [ownerId], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  members      RoomMember[]
+  blocks       Block[]
+}
+
+model RoomMember {
+  id        String   @id @default(uuid())
+  userId    String
+  roomId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, roomId])
+}
+
+model Block {
+  id        String      @id @default(uuid())
+  roomId    String
+  room      Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  content   String      @default("")
+  position  Float       // Fractional indexing for ordering
+  updatedBy String      // userId who last updated
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  aiHistory AiHistory[]
+}
+
+model AiHistory {
+  id        String   @id @default(uuid())
+  blockId   String
+  block     Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  action    String
+  response  String
+  createdAt DateTime @default(now())
+}
