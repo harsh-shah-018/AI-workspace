@@ -25,7 +25,7 @@ export default function Block({ block, onAiStreamStart, onAiStreamUpdate, onAiSt
     
     try {
       const token = localStorage.getItem('token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://ai-workspace-backend-wb9j.onrender.com/api';
       const response = await fetch(`${apiUrl}/ai/action`, {
         method: 'POST',
         headers: {
